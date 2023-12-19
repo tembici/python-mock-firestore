@@ -1,6 +1,8 @@
 import warnings
 from typing import Any, List, Optional, Iterable, Dict, Tuple, Sequence, Union
 
+from google.cloud.firestore_v1 import FieldFilter
+
 from mockfirestore import AlreadyExists
 from mockfirestore._helpers import generate_random_string, Store, get_by_path, set_by_path, Timestamp
 from mockfirestore.query import Query
@@ -41,8 +43,11 @@ class CollectionReference:
         timestamp = Timestamp.from_now()
         return timestamp, doc_ref
 
-    def where(self, field: str, op: str, value: Any) -> Query:
-        query = Query(self, field_filters=[(field, op, value)])
+    def where(self, field: str = None, op: str = None, value: Any = None, filter: FieldFilter = None) -> Query:
+        if filter:
+            query = Query(self, field_filters=[(filter.field_path, filter.op_string, filter.value)])
+        else:
+            query = Query(self, field_filters=[(field, op, value)])
         return query
 
     def order_by(self, key: str, direction: Optional[str] = None) -> Query:
